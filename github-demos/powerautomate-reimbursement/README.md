@@ -1,172 +1,193 @@
-# Power Automate – Reimbursement Workflow Suite 💼⚙️
+# Event Reimbursement Automation  
+**End-to-End Power Automate & SharePoint System**
 
-This project is a **production-grade reimbursement automation system** built with **Microsoft Power Automate and SharePoint**.  
-It replaces a complex manual reimbursement process with a **fully automated, auditable, and scalable workflow system**.
-
-The solution is composed of **multiple modular flows** working together as one system.
+**Developed by Ali Azzam**
 
 ---
 
-## 🧩 Business Problem
+This repository presents a **production-ready event reimbursement automation system** built using **Microsoft Power Automate, SharePoint Online, and Outlook**.
 
-Managing reimbursements manually involves:
-- Multiple lists and documents
-- Repeated follow-ups
-- Human errors in calculations
-- Delays in payment processing
-- Poor auditability
+The solution manages the **entire reimbursement lifecycle** — from event creation and guest invitation to accounting export and payment follow-up — with a strong focus on **auditability, idempotency, human control, and financial safety**.
 
-This system automates the **entire reimbursement lifecycle** from event attendance to payment confirmation.
+It reflects real-world enterprise constraints rather than demo-style automation.
 
 ---
 
-## 🏗️ System Architecture (High Level)
+## 🧠 System Overview
 
-The solution orchestrates several SharePoint lists and Power Automate flows:
+The system coordinates multiple business roles:
 
-- **Event management**
-- **Guest management**
-- **Reimbursement lifecycle**
-- **Document handling (PDF & receipts)**
-- **Accounting exports (CSV – SEPA / non-SEPA)**
-- **Notifications & reminders**
-- **Audit & history tracking**
+- **Event Operations Manager (EOM)**  
+  Owns the event lifecycle and controls invitations.
 
-> Internally, the system consists of ~15 Power Automate flows, each handling a specific responsibility.
+- **Guests**  
+  Submit reimbursement forms after attending an event.
 
----
+- **Staff**  
+  Review submissions, request corrections, and approve payments.
 
-## 🔁 Core Automated Flows (Overview)
+- **Accountant**  
+  Processes payments based on validated CSV exports.
 
-### 1️⃣ Event & Guest Identification
-- Automatic generation of:
-  - `EventID` (E + ID)
-  - `GuestID` (G + ID)
-  - `SeqNo` (system-wide auto-increment)
-- Email validation with fallback handling
-- Status-driven guest lifecycle (Proposed → Invited → Attended, etc.)
+**Power Automate** acts as the orchestration layer, while **SharePoint** serves as the system of record.
 
 ---
 
-### 2️⃣ Invitation & Attendance Management
-- Draft invitations created automatically
-- Manual or button-based invitation sending
-- Post-event staff notification to finalize attendance
-- Event status validation before reimbursement initiation
+## 🏗 System Architecture
+
+The following diagram illustrates the **end-to-end architecture** of the system, showing:
+
+- Human-in-the-loop decision points  
+- Power Automate as the orchestration engine  
+- SharePoint lists and document libraries as persistent storage  
+- Outlook as the communication layer  
+- Clear separation between operational, review, and accounting phases  
+
+![System Architecture](assets/architecture.png)
 
 ---
 
-### 3️⃣ Reimbursement Form Dispatch (Main Orchestrator)
-**This is the central flow of the system.**
+## 🗂 Data Model & Storage
 
-Triggered when:
-- Event status = **Completed**
-- Guest status = **Attended**
-- No existing reimbursement record exists
+The solution relies on the following SharePoint components:
 
-Actions:
-- Sends reimbursement form link to the guest
-- Creates:
-  - Reimbursement record
-  - Logbook entry
-- Generates unique reimbursement keys
-- Notifies staff of dispatched forms
+- **EventList**  
+  Stores events and lifecycle status.
 
----
+- **GuestList**  
+  Stores guests linked to events.
 
-### 4️⃣ Form Intake & Document Processing
-- HTML forms converted to **PDF**
-- Files saved in SharePoint document libraries
-- Each submission grouped into **document batches**
-- Full versioning with:
-  - Attempt numbers
-  - Latest / archived document tracking
+- **ReimbList**  
+  Active reimbursement submissions.
 
-Handles:
-- First submission
-- Resubmissions
-- Closed-case reopens (with full history preservation)
+- **HistoryReimbList**  
+  Archived submissions (used when re-submissions occur).
+
+- **LogbookList**  
+  Audit trail for traceability and compliance.
+
+- **ReimbursementDoc**  
+  Document library for generated PDFs and uploaded receipts.
 
 ---
 
-### 5️⃣ Automated Validation & Reminders
-- Reminder emails if no submission after 6 days
-- Configurable submission deadline (14–19 days)
-- Status-based routing:
-  - Pending
-  - Submitted
-  - Additional info requested
-  - Rejected
-  - Approved for payment
+## 🔁 End-to-End Workflow
+
+### 1️⃣ Flow Inventory
+
+The system is implemented using multiple **specialized Power Automate flows** (automated, scheduled, and manual).  
+Each flow has a single responsibility, improving reliability and maintainability.
+
+![Flow Inventory](assets/01-flow-inventory.png)
 
 ---
 
-### 6️⃣ Review & Approval (Human-in-the-loop)
-Staff manually verify:
-- Receipts
-- Amounts
-- Bank data
-- Consent & compliance
+### 2️⃣ Guest Eligibility & Form Dispatch
 
-System reacts automatically to decisions:
-- Rejection emails
-- Resubmission requests
-- Approval transitions
+Once an event is marked as completed:
 
----
+- Guests are filtered by **attendance**
+- Only eligible guests receive the reimbursement form
+- Invalid emails are detected and handled safely
 
-### 7️⃣ Accounting & Payment Export
-Automated CSV generation for accounting:
-- SEPA & non-SEPA handling
-- Duplicate export prevention (hash-based)
-- UTF-8 compliant banking format
-- Files stored with full metadata
+This prevents unauthorized or premature submissions.
 
-Accounting receives:
-- CSV files
-- Deep links
-- Summary email
+![Eligibility Trigger](assets/02-eligibility-trigger.png)
 
 ---
 
-### 8️⃣ Payment Tracking & Follow-ups
-- Status transitions:
-  - Approved → In Payment → Paid
-- Automatic reminders every 4 days until payment completion
-- Final confirmation email sent to guest
+### 3️⃣ Reimbursement Record Creation
+
+For each eligible guest:
+
+- A reimbursement entry is created in `ReimbList`
+- **Idempotency is enforced** using a composite key  
+  `(EventID + GuestID)`
+- Initial status is set to `Pending Submission`
+- Timestamps are recorded for traceability
+
+![Reimbursement Creation](assets/03-reimbursement-create.png)
 
 ---
 
-## 🧠 Key Design Principles
+### 4️⃣ Secure Form Submission Entry Point
 
-- ✔️ Modular flow architecture
-- ✔️ Idempotency & duplicate protection
-- ✔️ Full audit trail (history & logbook)
-- ✔️ Separation of concerns
-- ✔️ Human validation where required
-- ✔️ Scalable for multiple events & guests
+Reimbursement forms are accessed through a **controlled webhook / manual trigger**:
 
----
+- Only invited guests can submit
+- Submission itself represents a valid state transition
+- No fragile internal conditions are required
 
-## 📂 Data & Security Notes
+This ensures a clean and secure boundary for state changes.
 
-- All examples use **test/dummy data**
-- No real personal or banking data is exposed
-- Bank data lifecycle designed with GDPR minimization in mind
-- Retention & deletion policies planned
+![Submission Logic](assets/04-submission-logic.png)
 
 ---
 
-## 🛠️ Tools & Technologies
+### 5️⃣ Accounting Export (SEPA / Non-SEPA)
 
-- Microsoft Power Automate
-- SharePoint (Lists & Document Libraries)
-- Outlook / Email connectors
-- CSV generation for banking systems
+Approved reimbursements are:
+
+- Filtered by validation and approval status
+- Split into **SEPA** and **Non-SEPA** banking flows
+- Exported as CSV files
+- Marked as `Exported` to prevent duplicate payments
+- Sent to the accountant with all supporting documents
+
+![CSV Export](assets/05-csv-export.png)
 
 ---
 
-## 📌 Notes
+### 6️⃣ Reminder & Payment Monitoring
 
-This repository showcases **architecture, logic, and orchestration**, not internal company data.  
-Screenshots represent **real production flows**, sanitized for demonstration purposes.
+A scheduled control flow ensures financial follow-up:
+
+- Time-window-based reminders (6–19 days)
+- Timezone-aware logic (`Asia/Beirut`)
+- Automatic reminders if payment remains unpaid after 5 days
+
+This prevents missed or forgotten payments.
+
+![Reminder Flow](assets/06-reminder-flow.png)
+
+---
+
+## 🧩 Key Design Principles
+
+- **Human-in-the-loop**  
+  Invitation emails are drafted, not automatically sent.
+
+- **Idempotency**  
+  Guaranteed via `(EventID + GuestID)` to avoid duplicates.
+
+- **Auditability**  
+  Every action is logged and archived.
+
+- **Financial safety**  
+  Export flags and reminders prevent double payments.
+
+- **Scalability & clarity**  
+  Modular flows with clear responsibilities.
+
+---
+
+## 🧪 Technologies Used
+
+- Microsoft Power Automate  
+- SharePoint Online (Lists & Document Libraries)  
+- Microsoft Outlook  
+- CSV / SEPA-compatible accounting exports  
+
+---
+
+## 👨‍💻 Author
+
+**Ali Azzam**  
+Computer & Communication Engineering (CCE)  
+Université Saint-Joseph (USJ), Lebanon  
+
+---
+
+## 📜 License
+
+MIT License
