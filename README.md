@@ -13,8 +13,6 @@ Each project is documented independently with its own architecture diagrams, wor
 
 ## 📁 Repository Structure
 
-## 📁 Repository Structure
-
 ```text
 automation-workflows-demo/
 ├── github-demos/
@@ -23,13 +21,14 @@ automation-workflows-demo/
 │   │   └── assets/
 │   ├── ai-tender-compliance/
 │   │   ├── README.md
-│   │   └── assets/
+│   │   ├── assets/
+│   │   └── demo/
 │   └── powerautomate-reimbursement/
 │       ├── README.md
-│       └── flows/
+│       └── assets/
 ├── README.md
 └── LICENSE
-```
+
 
 All projects are located under the `github-demos/` directory.
 
@@ -128,5 +127,6 @@ Université Saint-Joseph (USJ), Lebanon
 
 This project is licensed under the **MIT License**.  
 See the `LICENSE` file for details.
+
 
 
