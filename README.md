@@ -13,11 +13,18 @@ Each project is documented independently with its own architecture diagrams, wor
 
 ## 📁 Repository Structure
 
+a
 automation-workflows-demo/
 ├── github-demos/
-│ ├── clinic-whatsapp-appointments/
-│ ├── ai-tender-compliance/
-│ └── powerautomate-reimbursement/
+│   ├── clinic-whatsapp-appointments/
+│   │   ├── README.md
+│   │   └── assets/
+│   ├── ai-tender-compliance/
+│   │   ├── README.md
+│   │   └── assets/
+│   └── powerautomate-reimbursement/
+│       ├── README.md
+│       └── flows/
 ├── README.md
 └── LICENSE
 
@@ -119,3 +126,4 @@ Université Saint-Joseph (USJ), Lebanon
 
 This project is licensed under the **MIT License**.  
 See the `LICENSE` file for details.
+
