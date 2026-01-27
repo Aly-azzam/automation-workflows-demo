@@ -13,7 +13,9 @@ Each project is documented independently with its own architecture diagrams, wor
 
 ## 📁 Repository Structure
 
-a
+## 📁 Repository Structure
+
+```text
 automation-workflows-demo/
 ├── github-demos/
 │   ├── clinic-whatsapp-appointments/
@@ -27,7 +29,7 @@ automation-workflows-demo/
 │       └── flows/
 ├── README.md
 └── LICENSE
-
+```
 
 All projects are located under the `github-demos/` directory.
 
@@ -126,4 +128,5 @@ Université Saint-Joseph (USJ), Lebanon
 
 This project is licensed under the **MIT License**.  
 See the `LICENSE` file for details.
+
 
